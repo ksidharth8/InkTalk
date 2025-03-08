@@ -1,0 +1,25 @@
+/* Custom Spinner Animation */
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+.animate-spin {
+	animation: spin 1s linear infinite;
+}
+
+/* Toast Notifications (Optional) */
+.toast {
+	position: fixed;
+	bottom: 20px;
+	right: 20px;
+	background: #4caf50;
+	color: white;
+	padding: 10px 20px;
+	border-radius: 5px;
+	display: none;
+}
