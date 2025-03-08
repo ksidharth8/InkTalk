@@ -8,16 +8,18 @@
 			href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
 			rel="stylesheet"
 		/>
-		<link rel="stylesheet" href="styles.css" />
 		<script async src="https://docs.opencv.org/4.5.0/opencv.js"></script>
 	</head>
 	<body class="bg-gray-100">
-		<!-- Header -->
+		<!-- Header with Login/Logout -->
 		<header class="bg-blue-600 text-white py-4">
-			<div class="container mx-auto px-4">
-				<h1 class="text-2xl font-bold text-center">
-					InkTalk: Listen to Your Notes!
+			<div class="container mx-auto px-4 flex justify-between items-center">
+				<h1 class="text-2xl font-bold">
+					AudibleLink: Listen to Your Notes!
 				</h1>
+				<div id="auth-buttons">
+					<!-- Login/Logout buttons will appear here -->
+				</div>
 			</div>
 		</header>
 
@@ -173,7 +175,97 @@
 		</div>
 
 		<!-- Scripts -->
+		<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.1.1/dist/tesseract.min.js"></script>
 		<script src="script.js"></script>
+
+		<!-- Add Firebase CDN for Firebase v9+ -->
+		<script type="module">
+			import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+			import {
+				getAuth,
+				GoogleAuthProvider,
+				signInWithPopup,
+				signOut,
+			} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+			const firebaseConfig = {
+				apiKey: "AIzaSyBb_mh6VKMy7cdtsqGxbWedGQpZWk5ePEA",
+				authDomain: "ink-talk-c129c.firebaseapp.com",
+				projectId: "ink-talk-c129c",
+				storageBucket: "ink-talk-c129c.firebasestorage.app",
+				messagingSenderId: "417774882377",
+				appId: "1:417774882377:web:ff6322c6fb775fa32cb998",
+			};
+
+			// Initialize Firebase
+			const app = initializeApp(firebaseConfig);
+			const auth = getAuth(app);
+			const provider = new GoogleAuthProvider();
+
+			const authButtons = document.getElementById("auth-buttons");
+			const loginButton = document.createElement("button");
+			const logoutButton = document.createElement("button");
+
+			// Function to handle login/logout
+			function updateUI(user) {
+				authButtons.innerHTML = ""; // Clear existing buttons
+
+				if (user) {
+					// User is signed in
+					logoutButton.textContent = "Logout";
+					logoutButton.classList.add(
+						"bg-red-500",
+						"text-white",
+						"px-4",
+						"py-2",
+						"rounded",
+						"cursor-pointer",
+						"hover:bg-red-600"
+					);
+					logoutButton.addEventListener("click", () => {
+						signOut(auth)
+							.then(() => {
+								console.log("User signed out");
+								updateUI(null); // Update UI when logged out
+							})
+							.catch((error) => console.error(error));
+					});
+
+					authButtons.appendChild(logoutButton);
+				} else {
+					// User is not signed in
+					loginButton.textContent = "Login with Google";
+					loginButton.classList.add(
+						"bg-blue-500",
+						"text-white",
+						"px-4",
+						"py-2",
+						"rounded",
+						"cursor-pointer",
+						"hover:bg-blue-600"
+					);
+					loginButton.addEventListener("click", () => {
+						signInWithPopup(auth, provider)
+							.then((result) => {
+								console.log("User signed in: ", result.user);
+								updateUI(result.user); // Update UI when logged in
+							})
+							.catch((error) => console.error(error));
+					});
+
+					authButtons.appendChild(loginButton);
+				}
+			}
+
+			// Monitor auth state change
+			auth.onAuthStateChanged((user) => {
+				updateUI(user);
+			});
+
+			// Initial call to update UI based on user's auth state
+			updateUI(auth.currentUser);
+		</script>
 	</body>
 </html>
